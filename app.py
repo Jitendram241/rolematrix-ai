@@ -1,23 +1,16 @@
-
 import streamlit as st
-import pandas as pd
+import os
 
-st.set_page_config(page_title="RoleMatrix.AI", layout="wide")
+# 🌐 Simulated Login
+if 'user_email' not in st.session_state:
+    st.session_state['user_email'] = st.text_input("Enter your email to continue:")
+    st.stop()
 
-st.title("🔐 RoleMatrix.AI — SAP Role & SoD Intelligence")
-
-st.sidebar.header("📁 Upload SAP Files")
-
-agr_users_file = st.sidebar.file_uploader("Upload AGR_USERS.csv", type="csv")
-agr_1251_file = st.sidebar.file_uploader("Upload AGR_1251.csv", type="csv")
-sod_rules_file = st.sidebar.file_uploader("Upload SoD_RULES.csv", type="csv")
-
-if agr_users_file and agr_1251_file:
-    st.session_state["agr_users"] = pd.read_csv(agr_users_file)
-    st.session_state["agr_1251"] = pd.read_csv(agr_1251_file)
-    if sod_rules_file:
-        st.session_state["sod_rules"] = pd.read_csv(sod_rules_file)
-        st.success("✅ SoD Rules loaded.")
-    st.success("✅ Files loaded successfully. Navigate using the sidebar.")
+# Simulated Pro access
+if st.session_state['user_email'] == "pro@user.com":
+    st.session_state['is_pro'] = True
 else:
-    st.warning("👈 Please upload AGR_USERS and AGR_1251 files to proceed.")
+    st.session_state['is_pro'] = False
+
+st.title("📊 RoleMatrix.AI - SAP Role Access Analyzer")
+st.sidebar.success(f"Logged in as: {st.session_state['user_email']}")

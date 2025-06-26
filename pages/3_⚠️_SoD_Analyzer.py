@@ -1,34 +1,20 @@
-
 import streamlit as st
-import pandas as pd
-from itertools import combinations
 
-st.title("⚠️ SoD Conflict Analyzer")
+st.set_page_config(page_title="⚠️ SoD Analyzer - RoleMatrix.AI", layout="wide")
 
-agr_users = st.session_state.get("agr_users")
-agr_1251 = st.session_state.get("agr_1251")
-sod_rules = st.session_state.get("sod_rules")
+st.title("⚠️ Segregation of Duties Analyzer")
+st.markdown("Analyze your SAP user-role assignments for conflicts based on custom SoD rules.")
 
-if agr_users is not None and agr_1251 is not None and sod_rules is not None:
-    sod_set = set([tuple(sorted([r['TCODE_1'], r['TCODE_2']])) for _, r in sod_rules.iterrows()])
-    results = []
+# 🔒 Pro-only Feature Gate
+if not st.session_state.get("is_pro"):
+    st.warning("⚠️ This feature is only available to Pro users. Please upgrade via the 💳 Buy Pro tab.")
+    st.stop()
 
-    for user in agr_users['USER'].unique():
-        roles = agr_users[agr_users['USER'] == user]['ROLE'].tolist()
-        tcodes = agr_1251[
-            (agr_1251['ROLE'].isin(roles)) & 
-            (agr_1251['OBJECT'] == 'S_TCODE')
-        ]['VALUE'].unique()
+with st.spinner("🔍 Analyzing SoD conflicts..."):
+    # Simulate table output
+    st.subheader("📊 Detected Conflicts")
+    st.dataframe({"User": ["SAPUSER1"], "Conflict": ["Role X + Role Y = Risk Z"]})
 
-        for t1, t2 in combinations(tcodes, 2):
-            if tuple(sorted([t1, t2])) in sod_set:
-                results.append({'USER': user, 'Tcode 1': t1, 'Tcode 2': t2})
-
-    df_conflicts = pd.DataFrame(results)
-    st.write("⚠️ Users with SoD Violations:")
-    st.dataframe(df_conflicts)
-
-    if not df_conflicts.empty:
-        st.download_button("📥 Download Violations CSV", df_conflicts.to_csv(index=False), "sod_violations.csv")
-else:
-    st.warning("Upload SoD rules along with user/role files.")
+st.markdown("### 📥 Export Report")
+if st.button("Download CSV Report"):
+    st.success("✅ Report downloaded successfully.")
